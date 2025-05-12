@@ -1,4 +1,3 @@
-
 [package]
 name = "rusty-rlp"
 version = "0.4.0"
@@ -15,11 +14,10 @@ name = "rusty_rlp"
 crate-type = ["cdylib"]
 
 [dependencies]
-
-rlp = "0.4.5"
+rlp = "0.5.2"
 
 [dependencies.pyo3]
-version = "0.11.1"
+version = "0.20.0"
 features = ["extension-module"]
 
 [dev-dependencies]

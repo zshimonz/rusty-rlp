@@ -1,6 +1,5 @@
 use pyo3::prelude::*;
 use pyo3::types::{PyBytes, PyList, PyTuple};
-use pyo3::wrap_pyfunction;
 
 use rlp::{PayloadInfo, Prototype, Rlp};
 
@@ -120,7 +119,7 @@ fn _decode_raw<'a>(
             }
             Ok((ListOrBytes::List(current), _wrap_as_list_if_some(rlp_info)))
         }
-        Err(e) => Err(DecodingError::py_err(format!("{:?}", e))),
+        Err(e) => Err(DecodingError::new_err(format!("{:?}", e))),
     }
 }
 
@@ -147,7 +146,7 @@ fn _encode_raw<'a>(
         stream.append(&bytes_item.as_bytes());
         Ok(stream)
     } else {
-        Err(EncodingError::py_err(format!(
+        Err(EncodingError::new_err(format!(
             "Can not encode value {:?}",
             val
         )))
@@ -157,7 +156,8 @@ fn _encode_raw<'a>(
 #[pyfunction]
 fn encode_raw(val: PyObject, py: pyo3::Python) -> PyResult<PyObject> {
     let mut rlp_stream = rlp::RlpStream::new();
-    match _encode_raw(&mut rlp_stream, &val.cast_as(py).unwrap(), py) {
+    let val_ref = val.as_ref(py);
+    match _encode_raw(&mut rlp_stream, val_ref, py) {
         Ok(_) => Ok(PyBytes::new(py, &rlp_stream.out()).to_object(py)),
         Err(e) => Err(e),
     }
@@ -181,11 +181,11 @@ fn decode_raw(
 
 /// A Python module implemented in Rust.
 #[pymodule]
-fn rusty_rlp(_py: Python, module: &PyModule) -> PyResult<()> {
-    module.add_wrapped(wrap_pyfunction!(decode_raw))?;
-    module.add_wrapped(wrap_pyfunction!(encode_raw))?;
-    module.add("DecodingError", _py.get_type::<DecodingError>())?;
-    module.add("EncodingError", _py.get_type::<EncodingError>())?;
+fn rusty_rlp(py: Python, module: &PyModule) -> PyResult<()> {
+    module.add_function(wrap_pyfunction!(decode_raw, module)?)?;
+    module.add_function(wrap_pyfunction!(encode_raw, module)?)?;
+    module.add("DecodingError", py.get_type::<DecodingError>())?;
+    module.add("EncodingError", py.get_type::<EncodingError>())?;
 
     Ok(())
 }

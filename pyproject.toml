@@ -4,6 +4,13 @@ build-backend = "maturin"
 
 [project]
 name = "rusty-rlp"
+version = "0.4.0"
+description = "Python RLP serialization/deserialization based on a rapid fast Rust implementation."
+authors = [
+    {name = "Christoph Burgdorf", email = "christoph.burgdorf@gmail.com"}
+]
+readme = "README.md"
+license = {text = "MIT"}
 classifiers = [
   "Intended Audience :: Developers",
   "Programming Language :: Rust",
@@ -16,3 +23,8 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12"
 ]
+requires-python = ">=3.8"
+
+[tool.maturin]
+module-name = "rusty_rlp"
+features = ["pyo3/extension-module"]
